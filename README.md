@@ -12,6 +12,7 @@ Himalayan river ecosystems, encompassing vital water bodies such as the Beas, Uh
 ## 3. Problem Solution
 
 To effectively combat and monitor the degradation of Himalayan rivers, the project introduces a mobile IoT boat node engineered for continuous, real-time water quality assessment with integrated predictive analytics. The project is planned in two deployment stages:
+
 - **Stage 1 (RC Boat)**: A remote-controlled boat acting as a mobile sensor platform to collect water quality data across different locations. The exact hull design is currently under development.
 - **Stage 2 (Autonomous Boat)**: An autonomous boat capable of navigating through predefined waypoints. Before taking a sample at a waypoint, the boat waits for the water to stabilize, takes the sample, and then moves to the next waypoint.
 
