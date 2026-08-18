@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BOM — WQM Sensor Suite</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: #1a1a2e;
+      background: #fff;
+      padding: 40px 50px;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    /* --- Header --- */
+    .doc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 3px solid #1a1a2e;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+
+    .doc-header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .doc-header .subtitle {
+      font-size: 12px;
+      color: #555;
+      margin-top: 2px;
+    }
+
+    .doc-meta {
+      text-align: right;
+      font-size: 10px;
+      color: #444;
+      line-height: 1.7;
+    }
+
+    .doc-meta strong {
+      color: #1a1a2e;
+    }
+
+    /* --- Section headings --- */
+    h2 {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #1a1a2e;
+      border-bottom: 1.5px solid #ccc;
+      padding-bottom: 4px;
+      margin: 28px 0 12px 0;
+    }
+
+    h2 .num {
+      display: inline-block;
+      background: #1a1a2e;
+      color: #fff;
+      width: 22px;
+      height: 22px;
+      text-align: center;
+      line-height: 22px;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    /* --- Tables --- */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 8px;
+      font-size: 10.5px;
+    }
+
+    th,
+    td {
+      border: 1px solid #999;
+      padding: 6px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #1a1a2e;
+      color: #fff;
+      font-weight: 600;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    tr:nth-child(even) td {
+      background: #f5f5fa;
+    }
+
+    tr:last-child td {
+      font-weight: 500;
+    }
+
+    .total-row td {
+      background: #e8e8f0 !important;
+      font-weight: 700 !important;
+      border-top: 2px solid #1a1a2e;
+    }
+
+    td.right,
+    th.right {
+      text-align: right;
+    }
+
+    td.center,
+    th.center {
+      text-align: center;
+    }
+
+    /* --- Notes --- */
+    .note {
+      background: #f0f4ff;
+      border-left: 3px solid #3366cc;
+      padding: 8px 12px;
+      margin: 10px 0 20px 0;
+      font-size: 10px;
+      color: #333;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .note.warning {
+      background: #fff8e6;
+      border-left-color: #e6a800;
+    }
+
+    .note strong {
+      color: #1a1a2e;
+    }
+
+    /* --- Mounting diagram --- */
+    .diagram {
+      background: #f8f8fc;
+      border: 1px solid #ccc;
+      padding: 14px 18px;
+      font-family: 'Courier New', monospace;
+      font-size: 10.5px;
+      line-height: 1.6;
+      margin: 10px 0 20px 0;
+      white-space: pre;
+      border-radius: 4px;
+    }
+
+    /* --- Checklist --- */
+    .checklist {
+      list-style: none;
+      padding: 0;
+    }
+
+    .checklist li {
+      padding: 5px 0 5px 24px;
+      position: relative;
+      border-bottom: 1px dotted #ddd;
+      font-size: 10.5px;
+    }
+
+    .checklist li::before {
+      content: '☐';
+      position: absolute;
+      left: 2px;
+      font-size: 13px;
+    }
+
+    /* --- Footer --- */
+    .footer {
+      margin-top: 30px;
+      padding-top: 10px;
+      border-top: 1.5px solid #ccc;
+      font-size: 9px;
+      color: #888;
+      text-align: center;
+    }
+
+    /* --- Print --- */
+    @media print {
+      body {
+        padding: 20px 25px;
+      }
+
+      .note {
+        break-inside: avoid;
+      }
+
+      table {
+        break-inside: avoid;
+      }
+
+      h2 {
+        break-after: avoid;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <div>
+      <h1>Bill of Materials — WQM Sensor Suite</h1>
+      <div class="subtitle">Recommended Build (Mid Tier)</div>
+    </div>
+    <div class="doc-meta">
+      <strong>BOM-WQM-SENSOR-2026-R1</strong><br>
+      Project: River Water Quality Monitor<br>
+      Revision: 1.0<br>
+      Date: 2026-08-19<br>
+      Budget Ceiling: ₹30,000
+    </div>
+  </div>
+
+  <!-- 1. SENSOR MODULES -->
+  <h2><span class="num">1</span> Sensor Modules</h2>
+  <table>
+    <thead>
+      <tr>
+        <th class="center">#</th>
+        <th class="center">Qty</th>
+        <th>Part Number</th>
+        <th>Description</th>
+        <th>Interface</th>
+        <th class="right">Unit Price (₹)</th>
+        <th class="right">Subtotal (₹)</th>
+        <th>Source</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="center">1</td>
+        <td class="center">1</td>
+        <td>DFRobot SEN0161</td>
+        <td>Gravity: Analog pH Meter Kit (glass bulb electrode, BNC)</td>
+        <td>Analog</td>
+        <td class="right">800 – 1,200</td>
+        <td class="right">800 – 1,200</td>
+        <td>Robu / Robocraze</td>
+      </tr>
+      <tr>
+        <td class="center">2</td>
+        <td class="center">1</td>
+        <td>DFRobot SEN0189</td>
+        <td>Gravity: Analog Turbidity Sensor (IR optical)</td>
+        <td>Analog</td>
+        <td class="right">700 – 950</td>
+        <td class="right">700 – 950</td>
+        <td>Robu / Robocraze</td>
+      </tr>
+      <tr>
+        <td class="center">3</td>
+        <td class="center">1</td>
+        <td>DFRobot SEN0244</td>
+        <td>Gravity: Analog TDS Sensor Kit</td>
+        <td>Analog</td>
+        <td class="right">300 – 450</td>
+        <td class="right">300 – 450</td>
+        <td>Robu / Robocraze</td>
+      </tr>
+      <tr>
+        <td class="center">4</td>
+        <td class="center">2</td>
+        <td>— (generic)</td>
+        <td>DS18B20 Waterproof Temperature Probe (stainless steel, 1 m cable)</td>
+        <td>Digital (OneWire)</td>
+        <td class="right">150 – 200</td>
+        <td class="right">300 – 400</td>
+        <td>Robu / Amazon IN</td>
+      </tr>
+      <tr>
+        <td class="center">5</td>
+        <td class="center">1</td>
+        <td>DFRobot SEN0237-A</td>
+        <td>Gravity: Analog Dissolved Oxygen Sensor Kit (galvanic)</td>
+        <td>Analog</td>
+        <td class="right">3,500 – 4,200</td>
+        <td class="right">3,500 – 4,200</td>
+        <td>Robu / MakerBazar</td>
+      </tr>
+      <tr>
+        <td class="center">6</td>
+        <td class="center">1</td>
+        <td>DFRobot DFR0300</td>
+        <td>Gravity: Analog Conductivity Sensor (K=1)</td>
+        <td>Analog</td>
+        <td class="right">1,200 – 1,800</td>
+        <td class="right">1,200 – 1,800</td>
+        <td>Robu / Robocraze</td>
+      </tr>
+      <tr>
+        <td class="center">7</td>
+        <td class="center">1</td>
+        <td>DFRobot SEN0165</td>
+        <td>Gravity: Analog ORP Sensor Meter (platinum electrode, BNC)</td>
+        <td>Analog</td>
+        <td class="right">9,400 – 10,800</td>
+        <td class="right">9,400 – 10,800</td>
+        <td>Robu / Element14</td>
+      </tr>
+      <tr>
+        <td class="center">8</td>
+        <td class="center">1</td>
+        <td>JSN-SR04T</td>
+        <td>Waterproof Ultrasonic Distance Sensor (20–600 cm)</td>
+        <td>Digital (Trig/Echo)</td>
+        <td class="right">250 – 400</td>
+        <td class="right">250 – 400</td>
+        <td>Robu / Amazon IN</td>
+      </tr>
+      <tr>
+        <td class="center">9</td>
+        <td class="center">1</td>
+        <td>GY-BME280</td>
+        <td>BME280 Barometric Pressure + Humidity + Temperature Breakout</td>
+        <td>I2C</td>
+        <td class="right">250 – 400</td>
+        <td class="right">250 – 400</td>
+        <td>Robu / Robocraze</td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="5"></td>
+        <td class="right">Sensor Total</td>
+        <td class="right">₹16,700 – 20,600</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 2. CONSUMABLES -->
+  <h2><span class="num">2</span> Calibration &amp; Consumables (Initial Kit)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th class="center">#</th>
+        <th class="center">Qty</th>
+        <th>Description</th>
+        <th class="right">Est. Price (₹)</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="center">C1</td>
+        <td class="center">2</td>
+        <td>pH Buffer Solution — pH 4.0 (250 mL)</td>
+        <td class="right">150 – 250</td>
+        <td>For two-point calibration</td>
+      </tr>
+      <tr>
+        <td class="center">C2</td>
+        <td class="center">2</td>
+        <td>pH Buffer Solution — pH 7.0 (250 mL)</td>
+        <td class="right">150 – 250</td>
+        <td>For two-point calibration</td>
+      </tr>
+      <tr>
+        <td class="center">C3</td>
+        <td class="center">1</td>
+        <td>DO Membrane Cap + Electrolyte Fill (0.5 mol/L NaOH) — spare</td>
+        <td class="right">400 – 600</td>
+        <td>First replacement set</td>
+      </tr>
+      <tr>
+        <td class="center">C4</td>
+        <td class="center">1</td>
+        <td>ORP Calibration / Cleaning Solution</td>
+        <td class="right">200 – 400</td>
+        <td>For periodic platinum tip maintenance</td>
+      </tr>
+      <tr>
+        <td class="center">C5</td>
+        <td class="center">1</td>
+        <td>Conductivity Calibration Standard (1413 μS/cm, 250 mL)</td>
+        <td class="right">200 – 350</td>
+        <td>For K=1 probe calibration</td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="3"></td>
+        <td class="right">₹1,100 – 1,850</td>
+        <td>Consumables Total</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 3. 3D-PRINTED PARTS -->
+  <h2><span class="num">3</span> 3D-Printed Parts &amp; Filament</h2>
+  <table>
+    <thead>
+      <tr>
+        <th class="center">#</th>
+        <th class="center">Qty</th>
+        <th>Part</th>
+        <th>Material</th>
+        <th class="right">Est. Weight (g)</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="center">P1</td>
+        <td class="center">1</td>
+        <td>Probe mast body (sensor rack, ~30 cm)</td>
+        <td>PETG</td>
+        <td class="right">80 – 120</td>
+        <td>Rigid, UV-resistant, waterproof. Carries all submerged sensors.</td>
+      </tr>
+      <tr>
+        <td class="center">P2</td>
+        <td class="center">1</td>
+        <td>Turbidity sensor shroud / baffle</td>
+        <td>PETG</td>
+        <td class="right">15 – 25</td>
+        <td>Side-slotted cover over SEN0189 optical window. Blocks bubble ingress.</td>
+      </tr>
+      <tr>
+        <td class="center">P3</td>
+        <td class="center">1</td>
+        <td>DO membrane guard cage</td>
+        <td>PETG</td>
+        <td class="right">10 – 15</td>
+        <td>Wire-mesh style cage around galvanic membrane tip.</td>
+      </tr>
+      <tr>
+        <td class="center">P4</td>
+        <td class="center">1</td>
+        <td>pH bulb guard tube</td>
+        <td>PETG / PVC</td>
+        <td class="right">10 – 15</td>
+        <td>Perforated tube recessing glass bulb from lateral impact.</td>
+      </tr>
+      <tr>
+        <td class="center">P5</td>
+        <td class="center">1</td>
+        <td>Cable gland mounting plate</td>
+        <td>PETG</td>
+        <td class="right">15 – 25</td>
+        <td>Sealed hull-entry plate with holes for 6–8 cable glands.</td>
+      </tr>
+      <tr>
+        <td class="center">P6</td>
+        <td class="center">1</td>
+        <td>BME280 + electronics mounting bracket</td>
+        <td>PLA</td>
+        <td class="right">5 – 10</td>
+        <td>Internal hull bracket. No water contact — PLA acceptable.</td>
+      </tr>
+      <tr>
+        <td class="center">P7</td>
+        <td class="center">1</td>
+        <td>JSN-SR04T hull-bottom mount</td>
+        <td>PETG</td>
+        <td class="right">10 – 15</td>
+        <td>Angled bracket, faces sensor downward, clear of prop wash.</td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="4"></td>
+        <td class="right">145 – 225 g</td>
+        <td>Est. Total Print Weight</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-weight:600; font-size:11px; margin:14px 0 6px 0;">Filament Required:</p>
+  <table>
+    <thead>
+      <tr>
+        <th class="center">#</th>
+        <th class="center">Qty</th>
+        <th>Description</th>
+        <th class="right">Est. Price (₹)</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="center">F1</td>
+        <td class="center">1</td>
+        <td>PETG filament — 1 kg spool (white or black)</td>
+        <td class="right">800 – 1,200</td>
+        <td>UV-resistant, waterproof. ~145–225 g used; rest is spare.</td>
+      </tr>
+      <tr>
+        <td class="center">F2</td>
+        <td class="center">1</td>
+        <td>PLA filament — 250 g or share from existing spool</td>
+        <td class="right">0 – 300</td>
+        <td>Only for internal bracket (P6). Skip if PETG used for all.</td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="3"></td>
+        <td class="right">₹800 – 1,500</td>
+        <td>Filament Total</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="note">
+    <strong>Why PETG over PLA for submerged parts:</strong> PLA absorbs water over days/weeks and becomes brittle. PETG
+    is hydrophobic, UV-stable, and maintains structural integrity indefinitely underwater. All parts touching water
+    <strong>must</strong> be PETG (or ASA/ABS if available).
+  </div>
+
+  <!-- 4. INTERFACE SUMMARY -->
+  <h2><span class="num">4</span> Interface Summary</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Bus / Channel</th>
+        <th>Sensors Connected</th>
+        <th>Pin Requirement</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>ADC Ch 0</td>
+        <td>pH (SEN0161)</td>
+        <td>1 analog input</td>
+      </tr>
+      <tr>
+        <td>ADC Ch 1</td>
+        <td>Turbidity (SEN0189)</td>
+        <td>1 analog input</td>
+      </tr>
+      <tr>
+        <td>ADC Ch 2</td>
+        <td>TDS (SEN0244)</td>
+        <td>1 analog input</td>
+      </tr>
+      <tr>
+        <td>ADC Ch 3</td>
+        <td>DO (SEN0237-A)</td>
+        <td>1 analog input</td>
+      </tr>
+      <tr>
+        <td>ADC Ch 4</td>
+        <td>Conductivity (DFR0300)</td>
+        <td>1 analog input</td>
+      </tr>
+      <tr>
+        <td>ADC Ch 5</td>
+        <td>ORP (SEN0165)</td>
+        <td>1 analog input</td>
+      </tr>
+      <tr>
+        <td>OneWire bus</td>
+        <td>DS18B20 × 2 (primary + backup)</td>
+        <td>1 digital pin (shared bus)</td>
+      </tr>
+      <tr>
+        <td>GPIO (Trig)</td>
+        <td>JSN-SR04T trigger</td>
+        <td>1 digital output</td>
+      </tr>
+      <tr>
+        <td>GPIO (Echo)</td>
+        <td>JSN-SR04T echo</td>
+        <td>1 digital input</td>
+      </tr>
+      <tr>
+        <td>I2C (SDA/SCL)</td>
+        <td>BME280 (addr 0x76 or 0x77)</td>
+        <td>2 pins (shared bus)</td>
+      </tr>
+      <tr class="total-row">
+        <td><strong>Total</strong></td>
+        <td><strong>10 sensors</strong></td>
+        <td><strong>6 ADC + 4 digital + 2 I2C</strong></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="note">
+    <strong>Note:</strong> STM32F405 provides 16 ADC channels, 4 I2C buses, and 80+ GPIO — ample headroom for the full
+    suite plus future expansion.
+  </div>
+
+  <!-- 5. POWER BUDGET -->
+  <h2><span class="num">5</span> Power Budget (Sensor Subsystem Only)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Sensor</th>
+        <th class="right">Active Current</th>
+        <th class="right">Duty Cycle</th>
+        <th class="right">Avg. Current</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>pH signal board</td>
+        <td class="right">~5 mA</td>
+        <td class="right">100%</td>
+        <td class="right">5 mA</td>
+      </tr>
+      <tr>
+        <td>Turbidity (IR LED)</td>
+        <td class="right">~30 mA</td>
+        <td class="right">~5%</td>
+        <td class="right">1.5 mA</td>
+      </tr>
+      <tr>
+        <td>TDS signal board</td>
+        <td class="right">~5 mA</td>
+        <td class="right">100%</td>
+        <td class="right">5 mA</td>
+      </tr>
+      <tr>
+        <td>DS18B20 × 2</td>
+        <td class="right">~1.5 mA ea.</td>
+        <td class="right">~5%</td>
+        <td class="right">0.15 mA</td>
+      </tr>
+      <tr>
+        <td>DO signal board</td>
+        <td class="right">~6 mA</td>
+        <td class="right">100%</td>
+        <td class="right">6 mA</td>
+      </tr>
+      <tr>
+        <td>Conductivity board</td>
+        <td class="right">~5 mA</td>
+        <td class="right">100%</td>
+        <td class="right">5 mA</td>
+      </tr>
+      <tr>
+        <td>ORP signal board</td>
+        <td class="right">~5 mA</td>
+        <td class="right">100%</td>
+        <td class="right">5 mA</td>
+      </tr>
+      <tr>
+        <td>JSN-SR04T</td>
+        <td class="right">~30 mA</td>
+        <td class="right">~2%</td>
+        <td class="right">0.6 mA</td>
+      </tr>
+      <tr>
+        <td>BME280</td>
+        <td class="right">~0.3 mA</td>
+        <td class="right">~1%</td>
+        <td class="right">≈ 0 mA</td>
+      </tr>
+      <tr class="total-row">
+        <td><strong>Total sensor draw</strong></td>
+        <td></td>
+        <td></td>
+        <td class="right"><strong>~28.25 mA</strong></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="note">
+    <strong>Tip:</strong> Sensor subsystem draws negligible current compared to propulsion motors (10–30 A). No special
+    power management needed — sensors can remain powered throughout a mission.
+  </div>
+
+  <!-- 6. MOUNTING -->
+  <h2><span class="num">6</span> Mechanical Mounting Summary</h2>
+  <div class="diagram">HULL (top)
+    ├── BME280 ..................... internal, away from motor heat
+    ├── JSN-SR04T ................. hull bottom, facing down
+    │
+    PROBE MAST (submerged, rigid PVC / 3D-printed)
+    ├── Conductivity (K=1) ........ upper mast (fast, least sensitive)
+    ├── TDS ....................... upper mast, few cm from conductivity
+    ├── DS18B20 × 2 .............. mid mast (zip-tied / bracket)
+    ├── Turbidity (SEN0189) ....... mid mast, shroud w/ side slots
+    ├── ORP (SEN0165) ............. mid mast, BNC cable gland
+    ├── pH (SEN0161) .............. lower mast, PVC guard tube
+    └── DO (SEN0237-A) ............ deepest, wire cage over membrane</div>
+  <div class="note warning">
+    <strong>Important:</strong> All analog sensor signal boards must share a <strong>separate regulated power
+      rail</strong> from ESC/drive motors with a <strong>star-ground topology</strong>. This is a design decision to
+    make before the hull is sealed — analog sensors will pick up ESC switching noise if grounding is daisy-chained.
+  </div>
+
+  <!-- 7. COST SUMMARY -->
+  <h2><span class="num">7</span> Cost Summary</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Category</th>
+        <th class="right">Min (₹)</th>
+        <th class="right">Max (₹)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Sensor modules (×10)</td>
+        <td class="right">16,700</td>
+        <td class="right">20,600</td>
+      </tr>
+      <tr>
+        <td>Calibration consumables (initial)</td>
+        <td class="right">1,100</td>
+        <td class="right">1,850</td>
+      </tr>
+      <tr>
+        <td>3D printing filament</td>
+        <td class="right">800</td>
+        <td class="right">1,500</td>
+      </tr>
+      <tr class="total-row">
+        <td><strong>Grand Total</strong></td>
+        <td class="right"><strong>₹18,600</strong></td>
+        <td class="right"><strong>₹23,950</strong></td>
+      </tr>
+      <tr>
+        <td>Remaining from ₹30K budget</td>
+        <td class="right">₹6,050</td>
+        <td class="right">₹11,400</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="note">
+    <strong>Note:</strong> Remaining budget covers spare probes (DO membrane caps, pH replacement bulbs), additional
+    calibration solutions for extended field campaigns, cable glands, waterproof connectors, and mounting hardware.
+  </div>
+
+  <!-- 8. CHECKLIST -->
+  <h2><span class="num">8</span> Procurement Checklist</h2>
+  <ul class="checklist">
+    <li>pH sensor kit (SEN0161) + pH 4.0 &amp; 7.0 buffers</li>
+    <li>Turbidity sensor kit (SEN0189)</li>
+    <li>TDS sensor kit (SEN0244)</li>
+    <li>DS18B20 waterproof probes × 2</li>
+    <li>DO sensor kit (SEN0237-A) — verify NaOH fill solution is included or source locally</li>
+    <li>Conductivity sensor kit (DFR0300) + 1413 μS/cm calibration standard</li>
+    <li>ORP sensor kit (SEN0165) + cleaning solution</li>
+    <li>JSN-SR04T ultrasonic sensor</li>
+    <li>BME280 breakout board</li>
+    <li>Spare DO membrane cap + electrolyte</li>
+    <li>PETG filament — 1 kg spool (for probe mast, shrouds, guard cages, mounts)</li>
+    <li>3D print: probe mast, turbidity shroud, DO cage, pH guard, cable gland plate, mounts</li>
+  </ul>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    BOM-WQM-SENSOR-2026-R1 &nbsp;|&nbsp; Prepared for WQM-Project/WQM &nbsp;|&nbsp; River Water Quality Monitor with
+    Pollution Prediction
+  </div>
+
+</body>
+
+</html>
