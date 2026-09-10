@@ -47,11 +47,19 @@ typedef struct {
 } WQM_SensorData_t;
 
 /* ── BME280 calibration data (from chip NVM) ────────────────────────────────
+ * This structure holds the factory-set calibration coefficients (trimming
+ * parameters) burned into the BME280 sensor's non-volatile memory (NVM).
+ * These values must be read from the sensor during initialization and are
+ * essential for compensating the raw ADC readings into actual physical
+ * units (Temperature in °C, Pressure in Pa, Humidity in %).
  */
 typedef struct {
+  /* Temperature compensation parameters */
   uint16_t dig_T1;
   int16_t dig_T2;
   int16_t dig_T3;
+
+  /* Pressure compensation parameters */
   uint16_t dig_P1;
   int16_t dig_P2;
   int16_t dig_P3;
@@ -61,6 +69,8 @@ typedef struct {
   int16_t dig_P7;
   int16_t dig_P8;
   int16_t dig_P9;
+
+  /* Humidity compensation parameters */
   uint8_t dig_H1;
   int16_t dig_H2;
   uint8_t dig_H3;
