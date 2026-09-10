@@ -219,9 +219,6 @@ static void MX_I2C1_Init(void);
 static void MX_TIM6_Init(void);
 /* USER CODE BEGIN PFP */
 
-/* ── Peripheral init (manual — not from CubeMX) ──────────────────────────── */
-static void WQM_GPIO_Init(void);
-
 /* ── Microsecond delay ──────────────────────────────────────────────────────
  */
 static void delay_us(uint16_t us);
@@ -913,59 +910,6 @@ static void Debug_Print(const char *str) {
  * TIM6 prescaler and start are configured in USER CODE TIM6_Init 2 below.
  */
 
-/**
- * @brief  GPIO init for OneWire (PE6), ultrasonic Trig (PE4), Echo (PE5),
- *         and ADC analog pins.
- */
-static void WQM_GPIO_Init(void) {
-  GPIO_InitTypeDef g = {0};
-
-  __HAL_RCC_GPIOE_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
-
-  /* ── Ultrasonic trigger (PE4) — push-pull output ──────────────────────── */
-  g.Pin = TRIG_PIN;
-  g.Mode = GPIO_MODE_OUTPUT_PP;
-  g.Pull = GPIO_NOPULL;
-  g.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(TRIG_PORT, &g);
-  HAL_GPIO_WritePin(TRIG_PORT, TRIG_PIN, GPIO_PIN_RESET);
-
-  /* ── Ultrasonic echo (PE5) — input ────────────────────────────────────── */
-  g.Pin = ECHO_PIN;
-  g.Mode = GPIO_MODE_INPUT;
-  g.Pull = GPIO_PULLDOWN;
-  HAL_GPIO_Init(ECHO_PORT, &g);
-
-  /* ── OneWire (PE6) — starts as input with pull-up ─────────────────────── */
-  g.Pin = OW_PIN;
-  g.Mode = GPIO_MODE_INPUT;
-  g.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(OW_PORT, &g);
-
-  /* ── ADC analog pins — analog mode ────────────────────────────────────── */
-  g.Mode = GPIO_MODE_ANALOG;
-  g.Pull = GPIO_NOPULL;
-
-  /* PA3 (pH), PA4 (DO), PA5 (Conductivity), PA6 (ORP) */
-  g.Pin = GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6;
-  HAL_GPIO_Init(GPIOA, &g);
-
-  /* PC0 (Turbidity), PC3 (TDS) */
-  g.Pin = GPIO_PIN_0 | GPIO_PIN_3;
-  HAL_GPIO_Init(GPIOC, &g);
-
-  /* ── I2C1 pins: PB8 (SCL), PB9 (SDA) — alternate function open-drain ── */
-  g.Pin = GPIO_PIN_8 | GPIO_PIN_9;
-  g.Mode = GPIO_MODE_AF_OD;
-  g.Pull = GPIO_PULLUP;
-  g.Speed = GPIO_SPEED_FREQ_HIGH;
-  g.Alternate = GPIO_AF4_I2C1;
-  HAL_GPIO_Init(GPIOB, &g);
-}
-
 /* USER CODE END 0 */
 
 /**
@@ -1006,10 +950,6 @@ int main(void) {
   MX_I2C1_Init();
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-
-  /* ── Initialize WQM peripherals ───────────────────────────────────────────
-   */
-  WQM_GPIO_Init();
 
   /* ── Boot message ─────────────────────────────────────────────────────────
    */
