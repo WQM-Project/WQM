@@ -165,7 +165,9 @@ typedef struct {
 
 /* ── Device ID ──────────────────────────────────────────────────────────────
  */
-#define DEVICE_ID "WQM-001"
+#define DEVICE_ID                                                              \
+  "WQM-001" // incase multiple of these units are deployed later, so each must
+            // carry an id
 
 /* USER CODE END PD */
 
@@ -186,9 +188,6 @@ UART_HandleTypeDef huart3;
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* USER CODE BEGIN PV */
-ADC_HandleTypeDef hadc1;
-I2C_HandleTypeDef hi2c1;
-TIM_HandleTypeDef htim6;
 
 static BME280_CalibData_t bme280_calib;
 static int32_t bme280_t_fine; /* Shared between T/P/H comp  */
