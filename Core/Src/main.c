@@ -220,9 +220,6 @@ static void MX_TIM6_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* ── Peripheral init (manual — not from CubeMX) ──────────────────────────── */
-static void MX_ADC1_Init(void);
-static void MX_I2C1_Init(void);
-static void MX_TIM6_Init(void);
 static void WQM_GPIO_Init(void);
 
 /* ── Microsecond delay ──────────────────────────────────────────────────────
