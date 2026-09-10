@@ -1,130 +1,427 @@
-# IoT Application Specification Report: River Water Quality Monitor with Pollution Prediction
+<div align="center">
 
-## 1. Link(s) to the IoT application
+# 🌊 WQM — River Water Quality Monitor
 
-- **Project Documentation / Source Code**: [WQM-Project/WQM Repository](https://github.com/WQM-Project/WQM)
-- **Deployment Domain**: Embedded Systems, Internet of Things (IoT), and Artificial Intelligence/Machine Learning (AI/ML) applied to Health Tech and environmental conservation.
+### A solar-powered sensor boat that patrols Himalayan rivers, streams water quality over LoRa, and predicts pollution **24 hours before it happens**.
 
-## 2. Problem Statement
+<p>
+  <img src="https://img.shields.io/badge/MCU-STM32F722ZE-03234B?style=for-the-badge&logo=stmicroelectronics&logoColor=white" alt="STM32F722ZE">
+  <img src="https://img.shields.io/badge/Radio-LoRa_SX1278-FF6F00?style=for-the-badge" alt="LoRa SX1278">
+  <img src="https://img.shields.io/badge/Cloud-Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase">
+  <img src="https://img.shields.io/badge/ML-LSTM_%2B_Prophet-FF6F61?style=for-the-badge&logo=tensorflow&logoColor=white" alt="LSTM and Prophet">
+  <img src="https://img.shields.io/badge/UI-React_18-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React 18">
+</p>
 
-Himalayan river ecosystems, encompassing vital water bodies such as the Beas, Uhl, and Suketi rivers, are currently confronting severe ecological degradation. The primary drivers of this environmental crisis include unmanaged construction runoff, escalating tourism waste, and alterations in water flow and sediment due to accelerated glacial melt. This continuous pollution threatens aquatic life, degrades water quality for downstream communities, and disrupts local ecosystems. Currently, manual sampling and lab analysis are inadequate for catching sudden pollution events. There is a critical, unmet need for a robust, real-time, and continuous monitoring system capable of operating in remote, challenging topographies to detect these pollution spikes, analyze water quality trends, and forecast future health indices to empower timely municipal interventions.
+<p>
+  <a href="#-the-problem">Problem</a> ·
+  <a href="#-the-solution">Solution</a> ·
+  <a href="#-architecture">Architecture</a> ·
+  <a href="#-sensor-suite">Sensors</a> ·
+  <a href="#-specifications">Specs</a> ·
+  <a href="Sensor_Readme/">Hardware Docs</a>
+</p>
 
-## 3. Problem Solution
+</div>
 
-To effectively combat and monitor the degradation of Himalayan rivers, the project introduces a mobile IoT boat node engineered for continuous, real-time water quality assessment with integrated predictive analytics. The project is planned in two deployment stages:
+---
 
-- **Stage 1 (RC Boat)**: A remote-controlled boat acting as a mobile sensor platform to collect water quality data across different locations. The exact hull design is currently under development.
-- **Stage 2 (Autonomous Boat)**: An autonomous boat capable of navigating through predefined waypoints. Before taking a sample at a waypoint, the boat waits for the water to stabilize, takes the sample, and then moves to the next waypoint.
+## ⚡ TL;DR
 
-The comprehensive solution consists of:
+|  | |
+|:--|:--|
+| **What** | A mobile IoT boat node measuring 10 water-quality parameters in real time |
+| **Where** | Beas, Uhl, and Suketi rivers — remote Himalayan valleys with no reliable connectivity |
+| **How it talks** | LoRa to shore (~2 km LoS) → 4G LTE to cloud |
+| **What's smart** | LSTM forecasts the Water Quality Index 24 h ahead; Prophet tracks seasonal decline |
+| **What happens next** | WQI breaches IS 10500 / CPCB thresholds → automatic SMS + WhatsApp to authorities |
+| **Domain** | Embedded Systems · IoT · AI/ML · Environmental Conservation |
 
-- **Mobile On-site Data Collection**: A highly optimized sensor boat is deployed directly into the river, equipped with an array of industrial-grade sensors. It navigates to specified locations and waits for water to stabilize before sampling essential parameters (pH, turbidity, TDS, temperature, dissolved oxygen, and conductivity). The node performs critical preprocessing, such as median filtering and calibration offsets, directly on the edge.
-- **Robust Long-Range Communication**: Recognizing the lack of reliable Wi-Fi or high-bandwidth cellular networks in deep river valleys, the system utilizes LoRa (Long Range) communication for node-to-gateway telemetry, capable of spanning ~2 km line-of-sight.
-- **Advanced Predictive ML**: A dedicated gateway (or cloud backend) leverages a Long Short-Term Memory (LSTM) neural network. Trained on extensive Central Pollution Control Board (CPCB) data and augmented with real-time telemetry, this model predicts the Water Quality Index (WQI) 24 hours in advance.
-- **Actionable Visualization and Alerting**: A centralized, public-facing web dashboard visualizes the river's health via geographic heatmaps and time-series charts. If the current or predicted WQI breaches established safety thresholds (IS 10500/CPCB norms), the system autonomously dispatches alerts via SMS and WhatsApp to local authorities using the Twilio API.
+---
 
-## 4. System Representation
+## 🏔️ The Problem
 
-### System Description
+Himalayan river ecosystems are degrading fast. Construction runoff goes unmanaged, tourism waste keeps climbing, and accelerated glacial melt is rewriting flow and sediment patterns in the **Beas**, **Uhl**, and **Suketi**.
 
-The architecture of this IoT application is a tiered, multi-node infrastructure designed for resilience and scalability in remote environments.
+The monitoring hasn't kept up:
 
-1. **Edge Sensing Layer (The Boat)**:
-   The mobile boat acts as the primary data acquisition terminal. An internal STM32 MCU governs the sensor data collection and payload generation. For Stage 2, it also interfaces with navigation modules to manage waypoint traversal. At each location, after allowing the water to stabilize, it reads analog and digital signals from the connected sensor suite, processes the raw signals into physical units, and packages them into a concise payload.
-2. **Intermediate Relay Layer (The Gateway)**:
-   A shore-mounted gateway, powered by an ESP8266 (ESP-12E) module, acts as a bridge between the local LoRa network and the global internet. It continuously listens for incoming LoRa packets from the deployed boat, validates the data, appends timestamps, serializes the information into JSON, and uploads it via a 4G LTE cellular connection.
-3. **Cloud & Analytics Layer**:
-   A Firebase backend securely ingests the data using a cost-effective "Data Bucketing" schema. A Python-based ML pipeline utilizes TensorFlow/Keras for LSTM inference and Facebook Prophet for seasonal trend analysis. These models run on Firebase Cloud Functions, offloading heavy compute from the gateway.
-4. **Presentation & Action Layer**:
-   A React-based Single Page Application (SPA) subscribes to Firebase's real-time feeds to present the data interactively. Simultaneously, threshold-monitoring algorithms run server-side to trigger Twilio alerts to stakeholders when necessary.
+- **Manual sampling misses spikes.** A grab sample is one point in space and time. A toxic discharge at 2 AM is invisible by the time a lab report lands.
+- **Lab turnaround is measured in days.** Interventions need hours.
+- **The terrain fights you.** Deep valleys mean no Wi-Fi, patchy cellular, and no grid power for fixed stations.
 
-### Block Diagram / Flow Chart Description
+The result: pollution events get detected after they have already moved downstream.
 
-- **Data Acquisition**: River Water → [pH, Turbidity, TDS, Temp, DO, Cond Sensors, GPS]
-- **Edge Processing**: Sensors → [STM32 MCU (ADC Conversion, Median Filtering)]
-- **Telemetry Transmission**: [STM32] → [LoRa SX1278 TX] ≈≈≈(868/915 MHz RF)≈≈≈> [LoRa SX1278 RX]
-- **Gateway Aggregation**: [LoRa RX] → [ESP8266 (ESP-12E) Gateway] → [SIM7600E 4G LTE Module]
-- **Cloud Ingestion**: [4G Module] → [Internet] → [Firebase Firestore DB]
-- **Data Analytics Pipeline**: [Firestore DB] ↔ [Cloud Functions: LSTM WQI Prediction & Prophet Trend Analysis]
-- **Output 1 (Visualization)**: [Firestore DB] → [React SPA Dashboard (Leaflet.js Heatmaps, Recharts)]
-- **Output 2 (Alerting)**: [Cloud Functions] → [Twilio API] → [SMS/WhatsApp to Authorities]
+---
 
-## 5. Tools, Sensors, and Equipment
+## 🚀 The Solution
 
-### Sensors (Transducers)
+A **mobile sensor boat** that goes to the water instead of waiting for the water to come to a lab — with prediction layered on top of measurement.
 
-- **pH Sensor**: DFRobot SEN0161. Analog industrial-grade glass electrode. Range: 0–14 pH. Accuracy: ±0.1. Employs two-point calibration.
-- **Turbidity Sensor**: DFRobot SEN0189. Infrared optical sensor. Range: 0–3000 NTU. Outputs an analog voltage mapped to NTU via a polynomial curve.
-- **TDS Sensor**: Gravity Analog TDS Sensor. Range: 0–1000 ppm. Features temperature compensation using the DS18B20.
-- **Temperature Sensor**: DS18B20. Digital OneWire, waterproof stainless steel probe. Range: -55 °C to +125 °C. Accuracy: ±0.5 °C.
-- **Dissolved Oxygen (DO) Sensor**: DFRobot Gravity Analog DO Sensor. Galvanic probe. Range: 0–20 mg/L. Calibrated in air-saturated water.
-- **Conductivity Sensor**: Gravity Analog Conductivity Sensor (K=1). Range: 0–20 ms/cm. Cross-references TDS.
-- **GPS Module**: NEO-6M or NEO-M8N. Essential for geotagging each stop-and-sample reading and enabling Stage 2 waypoint navigation.
+### Four pillars
 
-### Embedded Hardware & Microcontrollers
+| | Pillar | What it does |
+|:-:|:--|:--|
+| 📡 | **Mobile edge sensing** | The boat navigates to a location, waits for the water to stabilize, then samples pH, turbidity, TDS, temperature, DO, conductivity, ORP, and depth. Median filtering and calibration offsets are applied **on the edge**. |
+| 📶 | **Long-range telemetry** | No Wi-Fi in a river valley. LoRa carries telemetry ~2 km line-of-sight to a shore gateway, which backhauls over 4G LTE. |
+| 🤖 | **Predictive ML** | An LSTM trained on CPCB historical data plus live telemetry forecasts the WQI **24 hours ahead**. |
+| 🚨 | **Action, not just dashboards** | Threshold breaches trigger Twilio SMS/WhatsApp alerts to local authorities automatically. |
 
-- **Edge Node MCU**: STM32 (e.g., STM32F405). Chosen for its high-precision hardware Analog-to-Digital Converter (ADC), ensuring accurate analog sensor readings, and excellent low-power sleep capabilities.
-- **Gateway MCU**: ESP8266 (ESP-12E) module. Handles LoRa reception, packet validation, JSON serialization, and communication with the 4G modem.
+### Deployment stages
 
-### Communication Modules
+```mermaid
+flowchart LR
+    subgraph S1["🛥️ STAGE 1 · RC Boat"]
+        direction TB
+        A1["Human-piloted platform"]
+        A2["Full sensor suite onboard"]
+        A3["Manual survey routes"]
+        A1 ~~~ A2 ~~~ A3
+    end
 
-- **LoRa Module**: SX1278 (433/868 MHz). SPI-interfaced to the MCU. Provides long-range RF telemetry.
-- **Cellular Module**: SIM7600E 4G LTE Module. Interfaced via UART AT commands to provide internet backhaul.
+    subgraph S2["🧭 STAGE 2 · Autonomous"]
+        direction TB
+        B1["GPS waypoint navigation"]
+        B2["Auto-stabilize on arrival"]
+        B3["Unattended missions"]
+        B1 ~~~ B2 ~~~ B3
+    end
 
-### Power & Energy Equipment
+    subgraph S3["🛰️ STAGE 3 · Fleet"]
+        direction TB
+        C1["Multi-boat coordination"]
+        C2["LoRa mesh networking"]
+        C3["On-device TinyML"]
+        C1 ~~~ C2 ~~~ C3
+    end
 
-- **Solar Panel**: 6V 3W monocrystalline panel, mast-mounted.
-- **Charge Controller**: CN3791 MPPT (Maximum Power Point Tracking) optimized for 6V panels.
-- **Battery**: 3.7V 3000 mAh 18650 LiPo cell.
+    S1 ==> S2 ==> S3
 
-### Enclosures & Mechanical
+    classDef now fill:#1971c2,stroke:#0d4a8a,stroke-width:2px,color:#ffffff
+    classDef next fill:#e8590c,stroke:#a83e08,stroke-width:2px,color:#ffffff
+    classDef later fill:#495057,stroke:#2b3035,stroke-width:2px,color:#ffffff
+    class A1,A2,A3 now
+    class B1,B2,B3 next
+    class C1,C2,C3 later
+```
 
 > [!IMPORTANT]
-> **BOAT DEVELOPMENT WORK-IN-PROGRESS**  
-> The mechanical design of the boat hull (for both Stage 1 RC and Stage 2 Autonomous) is currently under active development. We are exploring designs that can ensure hydrodynamic stability in river currents, provide a secure rigid probe mast for the sensor suite, and accommodate larger battery capacities for propulsion.
+> **Hull design is a work in progress.** The mechanical platform for both stages is under active development. We are targeting hydrodynamic stability in river currents, a rigid centralized probe mast, and battery volume sufficient for propulsion plus payload. Ideas and PRs welcome.
 
-- **Boat Hull**: Custom-designed boat hull (design pending for RC/Autonomous platform), sealed with marine silicone, equipped with a centralized probe mast and cable glands for the sensors.
-- **Gateway Housing**: IP65-rated ABS junction box, suitable for pole mounting on the shore.
+---
 
-### Software Stack & Cloud Tools
+## 🏗️ Architecture
 
-- **Firmware Development**: PlatformIO using Arduino framework or STM32Cube.
-- **Cloud Database**: Firebase Firestore.
-- **Machine Learning**: Python 3.10, TensorFlow/Keras (LSTM), Facebook Prophet.
-- **Frontend Framework**: React 18 (Vite) with Leaflet.js and Recharts.
-- **Notification Service**: Twilio API.
+A four-tier design, built so that each layer can fail without taking the others down.
 
-## 6. Reported Specifications
+```mermaid
+flowchart TB
+    RIVER(["🌊 River Water"])
 
-### Communication Protocols and Systems
+    subgraph L1["① Edge Sensing — The Boat"]
+        direction TB
+        SENSORS["<b>Sensor Array</b><br/>pH · Turbidity · TDS · DO<br/>EC · ORP · Depth · Temp · GPS"]
+        MCU["<b>STM32F722ZE</b><br/>12-bit ADC · Median Filter<br/>Calibration · Packet Assembly"]
+        SENSORS --> MCU
+    end
 
-- **Edge-to-Gateway (LoRa Telemetry)**:
-  - **Technology**: LoRa (Long Range RF).
-  - **Operating Frequency**: 868/915 MHz (or 433 MHz), depending on regional ISM band regulations.
-  - **Modulation Details**: Configurable Spread Factor (SF7–SF12) to dynamically trade-off between transmission range and data rate.
-  - **Effective Range**: Approximately 2 km Line-of-Sight (LoS) and 500 m Non-Line-of-Sight (NLOS) within valley topographies.
-  - **Data Payload**: Custom lightweight packet format with spatial data: `[node_id][timestamp][lat][lon][pH][turb][TDS][temp][DO][cond][checksum]`.
-- **Gateway-to-Cloud (Cellular Backhaul)**:
-  - **Technology**: 4G LTE cellular data.
-  - **Protocol**: HTTP/HTTPS requests containing JSON payloads.
-  - **Bandwidth Requirement**: Low bandwidth; a standard 1.5 GB/day cellular plan is more than sufficient for high-frequency telemetry.
+    subgraph L2["② Relay — Shore Gateway"]
+        direction TB
+        ESP["<b>ESP8266 ESP-12E</b><br/>Validate · Timestamp · Serialize"]
+        LTE["<b>SIM7600E</b><br/>4G LTE Backhaul"]
+        ESP --> LTE
+    end
 
-### Power Source and Efficiency Specifications
+    subgraph L3["③ Cloud + Analytics"]
+        direction TB
+        DB[("<b>Firebase Firestore</b><br/>Data-bucketed schema")]
+        FN["<b>Cloud Functions</b><br/>LSTM · Prophet"]
+        DB <--> FN
+    end
 
-- **Energy Harvesting**: The system is entirely off-grid, utilizing a 6V 3W monocrystalline solar panel to harvest ambient solar energy.
-- **Energy Storage**: Energy is buffered in a larger capacity LiPo battery pack (e.g., 2S/3S 5000mAh+) required to support both the propulsion motors and the sensor payload.
-- **Power Conditioning**: A CN3791 MPPT charge controller maximizes the energy extracted from the solar panel, regardless of varying light conditions.
-- **Power Management & Autonomy**: The system relies on a battery optimized for propulsion and sensor loads, supplemented by a solar panel. The average current draw is managed by powering down non-critical modules between waypoints and efficiently timing the stop-and-sample process. This strategy provides sufficient autonomous operation time to complete multiple survey missions without active recharging.
+    subgraph L4["④ Presentation + Action"]
+        direction TB
+        UI["<b>React 18 SPA</b><br/>Leaflet heatmaps · Recharts"]
+        TW["<b>Twilio</b><br/>SMS + WhatsApp"]
+    end
 
-## 7. Extended Architectural and Analytical Insights
+    GOV(["🏛️ Municipal Authorities"])
 
-### Database Optimization Strategy
+    RIVER --> SENSORS
+    MCU -.->|"LoRa SX1278 · 868/915 MHz · ~2 km LoS"| ESP
+    LTE -->|"HTTPS / JSON"| DB
+    DB -->|"real-time subscription"| UI
+    FN -->|"WQI breach"| TW
+    TW --> GOV
 
-The architecture utilizes a "Data Bucketing" pattern in Firebase Firestore. Instead of creating a new database document for every waypoint reading during a survey mission, the gateway aggregates these readings into a single daily or mission-based document. This dramatically reduces database write operations and costs, and streamlines data retrieval for rendering geographic heatmaps and time-series charts on the frontend.
+    classDef endpoint fill:#0b7285,stroke:#095c6b,stroke-width:2px,color:#ffffff
+    classDef edge fill:#1971c2,stroke:#1249a0,color:#ffffff
+    classDef relay fill:#e8590c,stroke:#b34700,color:#ffffff
+    classDef cloud fill:#6741d9,stroke:#4c2fa8,color:#ffffff
+    classDef action fill:#2f9e44,stroke:#1f7a30,color:#ffffff
 
-### Dual-Tier Machine Learning Strategy
+    class RIVER,GOV endpoint
+    class SENSORS,MCU edge
+    class ESP,LTE relay
+    class DB,FN cloud
+    class UI,TW action
+```
 
-The application employs a sophisticated dual-model approach to predictive analytics:
+<details>
+<summary><b>📖 Layer-by-layer breakdown</b></summary>
 
-1. **Short-Term Tactical Prediction**: The Long Short-Term Memory (LSTM) network (configured with 2 stacked layers of 64 and 32 units, and a 0.2 dropout rate) is optimized for short-term, non-linear time-series forecasting. It predicts the WQI 24 hours ahead, providing immediate tactical alerts for sudden pollution events (e.g., a toxic spill or sudden runoff).
-2. **Long-Term Strategic Analysis**: Facebook Prophet is utilized on the backend for seasonal decomposition and changepoint detection. This provides a macroscopic view of river health trends over weeks or months, identifying gradual degradation and assisting municipal authorities in long-term environmental planning.
+<br>
+
+**1 · Edge Sensing Layer — the boat**
+
+The primary data acquisition terminal. An STM32F722ZE governs sensor collection and payload generation, and — in Stage 2 — interfaces with navigation modules for waypoint traversal. At each stop it lets the water settle, reads the analog and digital sensor channels, converts raw signals into physical units, and packs them into a compact payload.
+
+**2 · Intermediate Relay Layer — the gateway**
+
+A shore-mounted, pole-mounted box built around an ESP8266 (ESP-12E). It listens continuously for LoRa packets, validates them, appends timestamps, serializes to JSON, and uploads via SIM7600E 4G LTE. It bridges a local RF network to the public internet — nothing more, deliberately.
+
+**3 · Cloud and Analytics Layer**
+
+Firebase Firestore ingests telemetry using a cost-optimized *data bucketing* schema. A Python pipeline runs TensorFlow/Keras LSTM inference and Facebook Prophet seasonal decomposition on Firebase Cloud Functions, keeping heavy compute off the gateway entirely.
+
+**4 · Presentation and Action Layer**
+
+A React 18 SPA subscribes to Firestore real-time feeds for geographic heatmaps and time-series charts. In parallel, server-side threshold monitors fire Twilio alerts the moment current or predicted WQI crosses a limit.
+
+</details>
+
+### One reading, end to end
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant B as 📡 Boat
+    participant G as 🏠 Gateway
+    participant C as ☁️ Cloud
+    participant P as 🏛️ People
+
+    B->>B: settle · read · filter
+    B-->>G: LoRa packet
+    G->>G: validate · timestamp
+    G->>C: HTTPS to mission bucket
+    C->>C: LSTM → 24 h WQI
+    C->>C: Prophet → trend
+    C-->>P: live heatmap + charts
+    alt WQI breaches threshold
+        C->>P: SMS + WhatsApp alert
+    else within limits
+        C-->>C: store forecast
+    end
+```
+
+### Onboard sampling cycle
+
+What the boat actually does at every waypoint — and why power draw stays low.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> Navigating: mission uploaded
+    Navigating --> Stabilizing: waypoint reached
+    Stabilizing --> Sampling: water settled
+    Sampling --> Filtering: raw ADC captured
+    Filtering --> Transmitting: calibrated payload
+    Transmitting --> Transmitting: retry on failure
+    Transmitting --> Sleeping: packet sent
+    Sleeping --> Navigating: next waypoint
+    Sleeping --> [*]: mission complete
+```
+
+> [!TIP]
+> **Why `Stabilizing` is its own state.** Propellers off, wake settles. Sampling a churned wake gives you turbidity noise, not turbidity data — and it skews DO too. **Why `Sleeping` is its own state.** Non-critical modules power down between waypoints; that idle time is most of the mission, and it is where the power budget is won.
+
+---
+
+## 📡 Sensor Suite
+
+Full part numbers, pricing, and sourcing live in [`Sensor_Readme/WQM_Sensor_BOM.md`](Sensor_Readme/WQM_Sensor_BOM.md).
+
+| Parameter | Model | Range | Accuracy | Interface |
+|:--|:--|:--|:--|:--|
+| 🧪 **pH** | DFRobot SEN0161 | 0–14 pH | ±0.1 | Analog |
+| 🌫️ **Turbidity** | DFRobot SEN0189 | 0–3000 NTU | — | Analog |
+| 💧 **TDS** | DFRobot SEN0244 | 0–1000 ppm | temp-compensated | Analog |
+| 🌡️ **Water Temp** | DS18B20 ×2 | −55 to +125 °C | ±0.5 °C | OneWire |
+| 🫧 **Dissolved O₂** | DFRobot SEN0237-A | 0–20 mg/L | — | Analog |
+| ⚡ **Conductivity** | DFRobot DFR0300 (K=1) | 0–20 mS/cm | — | Analog |
+| 🔋 **ORP** | DFRobot SEN0165 | ±2000 mV | — | Analog |
+| 📏 **Depth** | JSN-SR04T | 20–600 cm | — | Trig/Echo |
+| 🌤️ **Air / Pressure** | BME280 | temp + RH + baro | — | I²C |
+| 📍 **Position** | NEO-6M / NEO-M8N | global | — | UART |
+
+> [!NOTE]
+> **Why calibration matters here.** pH uses two-point buffer calibration (4.0 / 7.0). Turbidity maps analog voltage to NTU through a polynomial curve. DO is calibrated in air-saturated water. TDS is temperature-compensated against the DS18B20. Skip any of these and the WQI is fiction.
+
+---
+
+## 🛠️ Hardware and Stack
+
+<table>
+<tr>
+<td valign="top" width="25%">
+
+**Compute**
+
+`STM32F722ZE`
+`ESP8266 ESP-12E`
+`STM32CubeIDE`
+`HAL Drivers`
+
+<sub>Chosen for a high-precision hardware ADC and low-power sleep modes — non-negotiable with 7 analog channels.</sub>
+
+</td>
+<td valign="top" width="25%">
+
+**Comms**
+
+`LoRa SX1278`
+`SIM7600E 4G LTE`
+`SPI` · `UART AT`
+`SF7–SF12`
+
+<sub>SPI to the MCU, UART AT commands to the modem.</sub>
+
+</td>
+<td valign="top" width="25%">
+
+**Power**
+
+`6V 3W Mono Solar`
+`CN3791 MPPT`
+`18650 LiPo`
+`Sleep scheduling`
+
+<sub>Fully off-grid. MPPT keeps harvest up under variable valley light.</sub>
+
+</td>
+<td valign="top" width="25%">
+
+**Software**
+
+`Firebase Firestore`
+`TensorFlow / Keras`
+`Facebook Prophet`
+`React 18 + Vite`
+`Leaflet · Recharts`
+`Twilio API`
+
+</td>
+</tr>
+</table>
+
+**Enclosures** — Custom boat hull (design pending), sealed with marine silicone, centralized probe mast, cable glands for sensor entry. The gateway lives in an IP65 ABS junction box on a shore pole.
+
+---
+
+## 📋 Specifications
+
+### Edge → Gateway (LoRa)
+
+| | |
+|:--|:--|
+| **Technology** | LoRa long-range RF |
+| **Frequency** | 868 / 915 MHz (433 MHz where regional ISM rules require) |
+| **Spreading Factor** | SF7–SF12, configurable — trades range against data rate |
+| **Range** | ~2 km line-of-sight · ~500 m NLoS in valley topography |
+
+**Packet format**
+
+```
+┌─ LoRa Payload ──────────────────────────────────────────────────────────────────┐
+│ node_id │ timestamp │ lat │ lon │  pH  │ turb │ TDS  │ temp │  DO  │ cond │ CRC │
+│  1 B    │    4 B    │ 4 B │ 4 B │  2 B │  2 B │  2 B │  2 B │  2 B │  2 B │ 2 B │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Gateway → Cloud (Cellular)
+
+| | |
+|:--|:--|
+| **Technology** | 4G LTE |
+| **Protocol** | HTTPS with JSON payloads |
+| **Bandwidth** | Low — a standard 1.5 GB/day plan covers high-frequency telemetry comfortably |
+
+### Power and Energy
+
+```mermaid
+flowchart TB
+    SUN["☀️ <b>Solar Panel</b><br/>6V 3W monocrystalline · mast-mounted"]
+    MPPT["<b>CN3791 MPPT Charge Controller</b><br/>tracks peak power point"]
+    BAT["🔋 <b>LiPo Pack</b><br/>3.7V 3000 mAh · 2S/3S 5000 mAh+ for propulsion"]
+    PM["<b>Power Management</b><br/>sleep between waypoints · timed stop-and-sample"]
+    LOAD["<b>Loads</b><br/>Sensors · MCU · LoRa · Propulsion"]
+
+    SUN -->|"harvest"| MPPT
+    MPPT -->|"charge"| BAT
+    BAT -->|"regulated rail"| PM
+    PM -->|"gated supply"| LOAD
+
+    classDef src fill:#f59f00,stroke:#c47f00,stroke-width:2px,color:#000000
+    classDef mid fill:#1971c2,stroke:#0d4a8a,stroke-width:2px,color:#ffffff
+    classDef sink fill:#2f9e44,stroke:#1a6b2a,stroke-width:2px,color:#ffffff
+    class SUN src
+    class MPPT,BAT,PM mid
+    class LOAD sink
+```
+
+The system is entirely off-grid. Non-critical modules are powered down between waypoints, and the stop-and-sample cycle is timed to minimize awake time — enough autonomy for multiple survey missions without active recharging.
+
+---
+
+## 🧠 Design Decisions Worth Knowing
+
+<details open>
+<summary><b>Data bucketing — why we do not write one document per reading</b></summary>
+
+<br>
+
+Firestore bills per operation. A survey mission with hundreds of waypoint readings would mean hundreds of writes.
+
+Instead, the gateway aggregates readings into a **single daily or mission-scoped document**. Writes collapse by orders of magnitude, costs stay flat as the fleet grows, and the frontend gets a whole mission in one read — which is exactly the shape heatmaps and time-series charts want anyway.
+
+</details>
+
+<details open>
+<summary><b>Dual-tier ML — two models, two time horizons</b></summary>
+
+<br>
+
+| | **LSTM** — tactical | **Prophet** — strategic |
+|:--|:--|:--|
+| **Horizon** | 24 hours ahead | Weeks to months |
+| **Config** | 2 stacked layers (64 + 32 units), 0.2 dropout | Seasonal decomposition + changepoint detection |
+| **Catches** | Sudden spikes — toxic spills, runoff events | Gradual degradation, seasonal patterns |
+| **Drives** | Immediate SMS/WhatsApp alerts | Long-term municipal planning |
+
+One model answers *"is something wrong right now?"* The other answers *"is this river getting worse?"* Neither question is optional.
+
+</details>
+
+---
+
+## 📂 Repository Layout
+
+| Path | What is inside |
+|:--|:--|
+| [`Sensor_Readme/`](Sensor_Readme/) | Hardware documentation hub |
+| ├─ [`WQM_Sensor_Suite_Guide.md`](Sensor_Readme/WQM_Sensor_Suite_Guide.md) | Sensor selection rationale and wiring |
+| ├─ [`WQM_Sensor_BOM.md`](Sensor_Readme/WQM_Sensor_BOM.md) | Bill of materials — parts, pricing, sourcing |
+| └─ [`RC_WQM_Sensor_Guide.md`](Sensor_Readme/RC_WQM_Sensor_Guide.md) | Stage 1 RC boat sensor guide |
+| `Core/` *(firmware branch)* | STM32F722ZE HAL firmware — drivers, ADC, telemetry |
+
+---
+
+## 🤝 Contributing
+
+Firmware optimization, ML model improvements, dashboard features, or hull design ideas — all welcome. Open an issue or send a PR.
+
+---
+
+<div align="center">
+<sub>Built with 💙 for Himalayan river conservation</sub>
+<br>
+<sub><b>Embedded Systems</b> · <b>IoT</b> · <b>AI/ML</b> · <b>Environmental Conservation</b></sub>
+</div>
