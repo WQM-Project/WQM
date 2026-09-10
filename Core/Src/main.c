@@ -441,6 +441,7 @@ static void DS18B20_SearchROM(void) {
   uint8_t rom_byte, rom_bit, id_bit, cmp_bit;
   uint8_t search_dir;
   uint8_t temp_rom[8];
+  (void)last_discrepancy; /* Used in full search; suppress warning */
 
   if (!OW_Reset())
     return;
@@ -839,8 +840,6 @@ static float Sensor_ReadORP(void) {
   uint32_t adc_raw = ADC_Read_Channel(ADC_CHANNEL_6); /* PA6 */
 
   /* DFRobot ORP formula adapted for 12-bit ADC and 3.3V system with divider */
-  float voltage_at_board =
-      ((float)adc_raw / ADC_RESOLUTION) * VREF * VDIV_SCALE;
   /* ORP: voltage represents millivolts offset from reference electrode */
   /* The SEN0165 board output: ORP_mV ≈ (Vref/2 - Vout) × gain */
   /* Simplified: map 0–5V board output to ±2000mV ORP range */
@@ -904,65 +903,9 @@ static void Debug_Print(const char *str) {
   HAL_UART_Transmit(&huart3, (uint8_t *)str, strlen(str), 500);
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
+/* Manual peripheral init functions removed — CubeMX now generates them.
+ * TIM6 prescaler and start are configured in USER CODE TIM6_Init 2 below.
  */
-/*                      PERIPHERAL INIT (MANUAL)                             */
-/* ═══════════════════════════════════════════════════════════════════════════
- */
-
-/**
- * @brief  ADC1 initialization — 6 analog channels, single conversion mode.
- *         Channels are selected dynamically via ADC_Read_Channel().
- */
-static void MX_ADC1_Init(void) {
-  __HAL_RCC_ADC1_CLK_ENABLE();
-
-  hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
-  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
-  hadc1.Init.ContinuousConvMode = DISABLE;
-  hadc1.Init.DiscontinuousConvMode = DISABLE;
-  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 1;
-  hadc1.Init.DMAContinuousRequests = DISABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-  HAL_ADC_Init(&hadc1);
-}
-
-/**
- * @brief  I2C1 initialization — 100kHz standard mode for BME280.
- *         SCL = PB8, SDA = PB9.
- */
-static void MX_I2C1_Init(void) {
-  __HAL_RCC_I2C1_CLK_ENABLE();
-
-  hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x20404768; /* 100kHz @ 54MHz APB1 */
-  hi2c1.Init.OwnAddress1 = 0;
-  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
-  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
-  HAL_I2C_Init(&hi2c1);
-}
-
-/**
- * @brief  TIM6 initialization — free-running µs counter.
- *         Clock: APB1 Timer = 108 MHz → PSC=107 → 1 MHz (1 µs tick).
- */
-static void MX_TIM6_Init(void) {
-  __HAL_RCC_TIM6_CLK_ENABLE();
-
-  htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 107; /* 108 MHz / (107+1) = 1 MHz */
-  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 0xFFFF; /* Free-running 16-bit counter */
-  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  HAL_TIM_Base_Init(&htim6);
-  HAL_TIM_Base_Start(&htim6);
-}
 
 /**
  * @brief  GPIO init for OneWire (PE6), ultrasonic Trig (PE4), Echo (PE5),
@@ -1061,9 +1004,6 @@ int main(void) {
   /* ── Initialize WQM peripherals ───────────────────────────────────────────
    */
   WQM_GPIO_Init();
-  MX_TIM6_Init();
-  MX_ADC1_Init();
-  MX_I2C1_Init();
 
   /* ── Boot message ─────────────────────────────────────────────────────────
    */
@@ -1332,7 +1272,7 @@ static void MX_TIM6_Init(void) {
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 0;
+  htim6.Init.Prescaler = 107; /* 108 MHz / (107+1) = 1 MHz → 1 µs tick */
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim6.Init.Period = 65535;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -1345,7 +1285,7 @@ static void MX_TIM6_Init(void) {
     Error_Handler();
   }
   /* USER CODE BEGIN TIM6_Init 2 */
-
+  HAL_TIM_Base_Start(&htim6); /* Start free-running counter for delay_us() */
   /* USER CODE END TIM6_Init 2 */
 }
 
