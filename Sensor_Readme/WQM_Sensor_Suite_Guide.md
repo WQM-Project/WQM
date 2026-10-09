@@ -21,14 +21,15 @@
 | 5 | Dissolved Oxygen | DFRobot Gravity Analog DO | Analog | 3,500–4,200 |
 | 6 | Conductivity | Gravity Analog (K=1) | Analog | 1,200–1,800 |
 | 7 | **ORP** | **DFRobot SEN0165** | **Analog** | **9,400–10,800** |
-| 8 | Depth | JSN-SR04T Ultrasonic | Digital (Trigger/Echo) | 250–400 |
+| 8 | Depth | IP68 Underwater Ultrasonic Obstacle Avoidance Sensor (6 m, UART) Ultrasonic | UART | 250–400 |
 | 9 | **Environmental** | **BME280** | **I2C** | **250–400** |
 | 10 | **Temperature (backup)** | **DS18B20** | **Digital (OneWire)** | **150–200** |
 | | **TOTAL** | | | **₹16,700–20,600** |
 
 **ADC channels used:** 6 analog (pH, turbidity, TDS, DO, conductivity, ORP)  
-**Digital pins used:** 2 (OneWire bus for DS18B20s, trigger/echo for ultrasonic)  
+**Digital pins used:** 1 (OneWire bus for DS18B20s)  
 **I2C devices:** 1 (BME280)  
+**UART devices:** 1 (depth sensor)  
 **STM32F405 capacity:** 16 ADC channels, multiple I2C/UART — ample headroom.
 
 ---
@@ -215,20 +216,21 @@ Without ORP, you detect "water is degraded." With ORP, you classify **why**.
 
 ### 8. Depth Sensor
 
-**Selected: JSN-SR04T Waterproof Ultrasonic (Budget/Mid tier — same product)**
+**Selected: IP68 Underwater Ultrasonic Obstacle Avoidance Sensor (6 m, UART) (Budget/Mid tier — same product)**
 
 | Spec | Value |
 |------|-------|
-| Range | 20 cm–600 cm |
-| Interface | Digital (trigger/echo) |
+| Range | Up to 6 m |
+| Interface | UART |
 
 | Tier | Option | Price (₹) | Notes |
 |------|--------|-----------|-------|
-| 🟢🟡 **Budget/Mid ★** | **JSN-SR04T** | **250–400** | **Waterproof, no consumables. Gives relative depth changes between sample points for context.** |
+| 🟢🟡 **Budget/Mid ★** | **IP68 Underwater Ultrasonic Obstacle Avoidance Sensor (6 m, UART)** | **250–400** | **Waterproof, no consumables. Gives relative depth changes between sample points for context.** |
 | 🔴 Premium | Submersible pressure transducer (stainless steel) | 2,600–5,000 | Absolute hydrostatic depth. Needed for hydrological surveying, not for WQ context. |
 
 **Purpose:** Not a precision depth meter. Provides context to distinguish real pollution events from fouled-sensor artifacts (turbidity spike + depth change = probably real; turbidity spike + no depth change = probably fouled lens).  
 **Mounting:** Hull bottom, facing down, clear of prop wash.
+**Integration note:** Keep depth telemetry semantics unchanged (single depth value per sample point). UART command/framing details are module-specific and should be finalized in firmware through the existing sensor abstraction once the exact vendor datasheet is selected.
 
 ---
 
@@ -296,7 +298,7 @@ Without pressure compensation, your DO readings are **systematically over-report
                     │                            │
                     └────────────────────────────┘
 
-          JSN-SR04T ultrasonic ← mounted hull bottom, faces down
+          IP68 Underwater Ultrasonic Obstacle Avoidance Sensor (6 m, UART) ultrasonic ← mounted hull bottom, faces down
 ```
 
 ---
@@ -312,7 +314,7 @@ Without pressure compensation, your DO readings are **systematically over-report
 6.  Wait remaining time for pH to stabilize (~30–60s total dwell)
 7.  Read: pH
 8.  Read: DO last (slowest — maximum settling time by now)
-9.  Read: JSN-SR04T depth
+9.  Read: IP68 Underwater Ultrasonic Obstacle Avoidance Sensor (6 m, UART) depth
 10. Apply compensations:
     - Temp compensation → pH, DO, conductivity, TDS
     - Pressure compensation → DO                         ← NEW
@@ -334,7 +336,7 @@ Without pressure compensation, your DO readings are **systematically over-report
 | DO | Generic galvanic probe | 2,000–3,000 |
 | Conductivity | Generic EC probe | 600–1,000 |
 | ORP | Generic analog ORP module | 1,500–4,000 |
-| Depth | JSN-SR04T | 250–400 |
+| Depth | IP68 Underwater Ultrasonic Obstacle Avoidance Sensor (6 m, UART) | 250–400 |
 | Environmental | BME280 | 250–400 |
 | **TOTAL** | | **₹5,950–10,900** |
 
@@ -354,7 +356,7 @@ Without pressure compensation, your DO readings are **systematically over-report
 | DO | DFRobot Gravity Analog DO | 3,500–4,200 |
 | Conductivity | Gravity Analog (K=1) | 1,200–1,800 |
 | ORP | DFRobot SEN0165 | 9,400–10,800 |
-| Depth | JSN-SR04T | 250–400 |
+| Depth | IP68 Underwater Ultrasonic Obstacle Avoidance Sensor (6 m, UART) | 250–400 |
 | Environmental | BME280 | 250–400 |
 | **TOTAL** | | **₹16,700–20,600** |
 
@@ -427,7 +429,7 @@ Without pressure compensation, your DO readings are **systematically over-report
 | DO (Galvanic) | Every 2–3 weeks | Membrane/electrolyte replacement + calibration |
 | Conductivity (K=1) | Monthly | Electrode cleaning + recalibration |
 | **ORP (SEN0165)** | **Monthly** | **Platinum tip cleaning** |
-| Depth (JSN-SR04T) | None | Fit-and-forget |
+| Depth (IP68 Underwater Ultrasonic Obstacle Avoidance Sensor (6 m, UART)) | None | Fit-and-forget |
 | **BME280** | **None** | **Fit-and-forget (hull-internal)** |
 | **Backup DS18B20** | **None** | **Fit-and-forget** |
 

@@ -248,7 +248,7 @@ Full part numbers, pricing, and sourcing live in [`Sensor_Readme/WQM_Sensor_BOM.
 | 🫧 **Dissolved O₂** | DFRobot SEN0237-A | 0–20 mg/L | — | Analog |
 | ⚡ **Conductivity** | DFRobot DFR0300 (K=1) | 0–20 mS/cm | — | Analog |
 | 🔋 **ORP** | DFRobot SEN0165 | ±2000 mV | — | Analog |
-| 📏 **Depth** | JSN-SR04T | 20–600 cm | — | Trig/Echo |
+| 📏 **Depth** | IP68 Underwater Ultrasonic Obstacle Avoidance Sensor (6 m, UART) | up to 6 m | — | UART |
 | 🌤️ **Air / Pressure** | BME280 | temp + RH + baro | — | I²C |
 | 📍 **Position** | NEO-6M / NEO-M8N | global | — | UART |
 
