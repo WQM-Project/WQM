@@ -321,9 +321,9 @@
       <tr>
         <td class="center">8</td>
         <td class="center">1</td>
-        <td>JSN-SR04T</td>
-        <td>Waterproof Ultrasonic Distance Sensor (20–600 cm)</td>
-        <td>Digital (Trig/Echo)</td>
+        <td>IP68 Underwater Ultrasonic Obstacle Avoidance Sensor (6 m, UART)</td>
+        <td>IP68 Underwater Ultrasonic Obstacle Avoidance Sensor (up to 6 m)</td>
+        <td>UART</td>
         <td class="right">250 – 400</td>
         <td class="right">250 – 400</td>
         <td>Robu / Amazon IN</td>
@@ -468,7 +468,7 @@
       <tr>
         <td class="center">P7</td>
         <td class="center">1</td>
-        <td>JSN-SR04T hull-bottom mount</td>
+        <td>IP68 Underwater Ultrasonic Obstacle Avoidance Sensor (6 m, UART) hull-bottom mount</td>
         <td>PETG</td>
         <td class="right">10 – 15</td>
         <td>Angled bracket, faces sensor downward, clear of prop wash.</td>
@@ -567,14 +567,9 @@
         <td>1 digital pin (shared bus)</td>
       </tr>
       <tr>
-        <td>GPIO (Trig)</td>
-        <td>JSN-SR04T trigger</td>
-        <td>1 digital output</td>
-      </tr>
-      <tr>
-        <td>GPIO (Echo)</td>
-        <td>JSN-SR04T echo</td>
-        <td>1 digital input</td>
+        <td>UART</td>
+        <td>IP68 Underwater Ultrasonic Obstacle Avoidance Sensor (6 m, UART)</td>
+        <td>1 UART RX/TX pair</td>
       </tr>
       <tr>
         <td>I2C (SDA/SCL)</td>
@@ -584,7 +579,7 @@
       <tr class="total-row">
         <td><strong>Total</strong></td>
         <td><strong>10 sensors</strong></td>
-        <td><strong>6 ADC + 4 digital + 2 I2C</strong></td>
+        <td><strong>6 ADC + 1 digital + 2 I2C + 1 UART</strong></td>
       </tr>
     </tbody>
   </table>
@@ -648,7 +643,7 @@
         <td class="right">5 mA</td>
       </tr>
       <tr>
-        <td>JSN-SR04T</td>
+        <td>IP68 Underwater Ultrasonic Obstacle Avoidance Sensor (6 m, UART)</td>
         <td class="right">~30 mA</td>
         <td class="right">~2%</td>
         <td class="right">0.6 mA</td>
@@ -676,7 +671,7 @@
   <h2><span class="num">6</span> Mechanical Mounting Summary</h2>
   <div class="diagram">HULL (top)
     ├── BME280 ..................... internal, away from motor heat
-    ├── JSN-SR04T ................. hull bottom, facing down
+    ├── IP68 Underwater Ultrasonic Obstacle Avoidance Sensor (6 m, UART) ................. hull bottom, facing down
     │
     PROBE MAST (submerged, rigid PVC / 3D-printed)
     ├── Conductivity (K=1) ........ upper mast (fast, least sensitive)
@@ -745,7 +740,7 @@
     <li>DO sensor kit (SEN0237-A) — verify NaOH fill solution is included or source locally</li>
     <li>Conductivity sensor kit (DFR0300) + 1413 μS/cm calibration standard</li>
     <li>ORP sensor kit (SEN0165) + cleaning solution</li>
-    <li>JSN-SR04T ultrasonic sensor</li>
+    <li>IP68 Underwater Ultrasonic Obstacle Avoidance Sensor (6 m, UART) ultrasonic sensor</li>
     <li>BME280 breakout board</li>
     <li>Spare DO membrane cap + electrolyte</li>
     <li>PETG filament — 1 kg spool (for probe mast, shrouds, guard cages, mounts)</li>

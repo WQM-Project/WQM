@@ -249,12 +249,12 @@
 
 ## 8. Depth/Flow Sensor (optional but recommended addition)
 
-**Recommended: JSN-SR04T Waterproof Ultrasonic Sensor**
+**Recommended: IP68 Underwater Ultrasonic Obstacle Avoidance Sensor (6 m, UART)**
 
 | Spec | Value |
 | --- | --- |
-| Range | 20cm–600cm |
-| Interface | Digital (trigger/echo, like standard ultrasonic) |
+| Range | Up to 6 m |
+| Interface | UART |
 | Cost | ₹250–400 |
 
 **Pros**
@@ -270,6 +270,8 @@
 
 - Mount facing downward from the hull bottom or a side bracket, clear of the prop wash.
 
+**Integration note:** Keep the existing depth data field semantics unchanged in telemetry. UART framing/commands are vendor-specific and should be wired through the firmware's sensor abstraction once the exact module datasheet is locked.
+
 **Human intervention needed?**
 
 - None.
@@ -282,7 +284,7 @@
 Put the sensor ADC/MCU on a separate regulated rail from the ESC/drive motor, with a proper star-ground topology rather than daisy-chained grounds. Your analog sensors (pH, turbidity, TDS, DO, conductivity) are all low-signal and will pick up ESC switching noise if grounding is sloppy — this is a design decision to make before the hull is sealed up, since it's painful to retrofit afterward.
 
 **Probe mast — one shared mechanical structure:**
-Rather than mounting each sensor independently, build a single rigid mast/rack (PVC or 3D-printed) that hangs below the hull and carries all the wetted sensors (pH, turbidity, DO, conductivity, TDS, temperature) in fixed relative positions, with the ultrasonic sensor and GPS mounted separately on/above the hull. This is both cheaper (one mounting structure, not six) and mechanically stronger against snagging/impact than individual probes.
+Rather than mounting each sensor independently, build a single rigid mast/rack (PVC or 3D-printed) that hangs below the hull and carries all the wetted sensors (pH, turbidity, DO, conductivity, TDS, temperature) in fixed relative positions, with the UART depth sensor and GPS mounted separately on/above the hull. This is both cheaper (one mounting structure, not six) and mechanically stronger against snagging/impact than individual probes.
 
 **Stop-and-sample firmware sequencing (suggested order per stop):**
 
